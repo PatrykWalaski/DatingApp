@@ -1,5 +1,4 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { homedir } from 'os';
 import { HomeComponent } from '../home/home.component';
 import { AuthService } from '../_services/auth.service';
 

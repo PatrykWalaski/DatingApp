@@ -59,13 +59,13 @@ namespace DatingApp.API.Controllers
             };
 
             // Get a key in byte[] from string value found in appsettings.json (in normal app it should be random not static like here)
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetSection("AppSettings:Token").Value)); 
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetSection("AppSettings:Token").Value));
             // Get credentials from generated key using an hmacsha512 algorithm
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new  ClaimsIdentity(claims),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.Now.AddDays(1),
                 SigningCredentials = creds
             };
@@ -73,8 +73,9 @@ namespace DatingApp.API.Controllers
             var tokenHandler = new JwtSecurityTokenHandler();
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            
-            return Ok(new {
+
+            return Ok(new
+            {
                 token = tokenHandler.WriteToken(token)
             });
             //Create Token Authentication
