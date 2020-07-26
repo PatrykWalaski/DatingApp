@@ -10,7 +10,7 @@ namespace DatingApp.API.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
         private readonly IDatingRepository _repo;
@@ -21,7 +21,6 @@ namespace DatingApp.API.Controllers
             _repo = repo;
         }
 
-        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
@@ -32,7 +31,6 @@ namespace DatingApp.API.Controllers
             return Ok(usersToReturn);
         }
 
-        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(int id)
         {
