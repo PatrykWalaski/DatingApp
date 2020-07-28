@@ -17,7 +17,7 @@ export class MemberListComponent implements OnInit {
   ngOnInit() {
     this.route.data.subscribe( data => {
       this.users = data['users'];
-    })
+    });
   }
 
   // NO NEED IF WE USE RESOLVERS: (LOADING BEFORE ACCESSING)

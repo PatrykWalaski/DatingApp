@@ -13,6 +13,7 @@ import { AuthService } from 'src/app/_services/auth.service';
 })
 export class MemberEditComponent implements OnInit {
   user: User;
+  photoUrl: string;
   @ViewChild('editForm', {static: true}) editForm: NgForm;
   @HostListener('window:beforeunload', ['$event']) // HOST LISTENER IS A BROWSER, WE CAN CHECK HERE
   unloadNotification($event: any) {                // IF SOMEONE CLOSES TAB AND PREVENT IT IF HE HAS SOME UNSAVED CHANGES IN THIS TAB
@@ -29,6 +30,8 @@ export class MemberEditComponent implements OnInit {
     this.route.data.subscribe(data => {
       this.user = data['user'];
     });
+
+    this.authService.currentPhotoUrl.subscribe(photoUrl => this.photoUrl = photoUrl);
   }
 
   updateUser()
@@ -39,6 +42,10 @@ export class MemberEditComponent implements OnInit {
     }, error => {
       this.alertify.error(error);
     });
+  }
+
+  setUserMainPhotoUrl(url: string){
+    this.user.photoUrl = url;
   }
 
 
