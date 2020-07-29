@@ -1,7 +1,15 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { HomeComponent } from '../home/home.component';
 import { AuthService } from '../_services/auth.service';
 import { AlertifyService } from '../_services/alertify.service';
+import {
+  FormGroup,
+  FormControl,
+  Validators,
+  FormBuilder
+} from '@angular/forms';
+import { User } from '../_models/user';
+import { Router } from '@angular/router';
+import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
 
 @Component({
   selector: 'app-register',
@@ -9,31 +17,82 @@ import { AlertifyService } from '../_services/alertify.service';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent implements OnInit {
-
   @Output() cancelRegister = new EventEmitter();
-  model: any = {};
+  user: User;
+  registerForm: FormGroup;
+  bsConfig: Partial<BsDatepickerConfig>;
 
-  constructor(private authService: AuthService, private alertify: AlertifyService) { }
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private alertify: AlertifyService,
+    private fb: FormBuilder
+  ) {}
 
   ngOnInit() {
+    this.bsConfig = {
+      containerClass: 'theme-red'
+    };
+    this.createRegisterForm();
   }
 
-  register(){
-    this.authService.register(this.model).subscribe(next =>
+  createRegisterForm() {
+    this.registerForm = this.fb.group(
       {
-        this.alertify.success('Registration complete');
-      }, error =>
-      {
-        this.alertify.error(error);
-      });
+        gender: ['male'],
+        username: ['', Validators.required],
+        knownAs: ['', Validators.required],
+        birth: [null, Validators.required],
+        city: ['', Validators.required],
+        country: ['', Validators.required],
+        password: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(4),
+            Validators.maxLength(8)
+          ]
+        ],
+        confirmPassword: ['', Validators.required]
+      },
+      { validator: this.passwordMatchValidator }
+    );
   }
 
-  cancel()
-  {
+  passwordMatchValidator(g: FormGroup) {
+    return g.get('password').value === g.get('confirmPassword').value
+      ? null
+      : { mismatch: true };
+  }
+
+  register() {
+    if (this.registerForm.valid) {
+      this.user = Object.assign({}, this.registerForm.value);
+      this.authService.register(this.user).subscribe(
+        () => {
+          this.alertify.success('Registration succesful');
+        },
+        error => {
+          this.alertify.error(error);
+          console.log(error);
+        },
+        () => {
+          this.authService.login(this.user).subscribe(next =>
+            {
+              this.alertify.success('Logged in successfully');
+            }, error =>
+            {
+              this.alertify.error(error);
+              console.log(error);
+            }, () => {
+              this.router.navigate(['/members']);
+            });
+        }
+      );
+    }
+  }
+
+  cancel() {
     this.cancelRegister.emit(false);
-    // this.cancelRegister.emit(); you can emit nothing and just call method in home.component.html like this:
-    // (cancelRegister)="registerToggle()" -> no need to create new method if we leave toggle as a switch:
-    //                                                              this.registerMode = !this.registerMode
   }
-
 }

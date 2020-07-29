@@ -4,8 +4,7 @@
 @import '../node_modules/alertifyjs/build/css/alertify.min.css';
 @import '../node_modules/alertifyjs/build/css/themes/bootstrap.min.css';
 @import '../node_modules/bootswatch/dist/materia/bootstrap.min.css';
-
-
+@import '../node_modules/ngx-bootstrap/datepicker/bs-datepicker.css';
 /* we can add custom global styles here*/
 
 .tab-panel {
