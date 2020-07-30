@@ -9,6 +9,9 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class MemberListResolver implements Resolve<User[]>{
+    pageNumber = 1;
+    pageSize = 5;
+
 
     constructor(private userService: UserService, private router: Router, private alertify: AlertifyService) {
     }
@@ -17,7 +20,7 @@ export class MemberListResolver implements Resolve<User[]>{
 
     // RESOLVER SO WE DONT HAVE TO USE NULLABLE '?' OPERATOR IN HTML FILES
     resolve(route: ActivatedRouteSnapshot): Observable<User[]> {
-        return this.userService.getUsers().pipe( // pipe is only for catching errors
+        return this.userService.getUsers(this.pageNumber, this.pageSize).pipe( // pipe is only for catching errors
             catchError(error => {
                 this.alertify.error('Problem retrieving data');
                 this.router.navigate(['/home']);
