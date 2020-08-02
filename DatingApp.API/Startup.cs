@@ -32,16 +32,34 @@ namespace DatingApp.API
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureDevelopmentServices(IServiceCollection services)
+        {
+             services.AddDbContext<DataContext>(x => {
+                 x.UseLazyLoadingProxies();
+                 x.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+             });
+            ConfigureServices(services);
+        }
+
+        public void ConfigureProductionServices(IServiceCollection services)
+        {
+             services.AddDbContext<DataContext>(x => {
+                 x.UseLazyLoadingProxies();
+                 x.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
+             });
+
+            ConfigureServices(services);
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DataContext>(x => 
-                x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+           
             services.AddControllers().AddNewtonsoftJson(opt => 
             {
                 opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
             });
             services.AddCors();
+            services.AddMvc();
             services.AddScoped<LogUserActivity>();
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings")); // CloudinarySettings variables are linked to CloudinarySettings in appsettings.json
             services.AddAutoMapper(typeof(DatingRepository).Assembly);                              // we do it to make it strongly typed properties
@@ -96,10 +114,14 @@ namespace DatingApp.API
             // THIS TOKEN BEARER AUTHETICATION NEED TO BE BEFORE AUTHORIZATION !!!! IMPORTANT !!!!
             
             app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            
+            app.UseDefaultFiles(); // looks for index.html  in  wwwroot
+            app.UseStaticFiles(); // looks for static files like wwwroot folder and use content inside there
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapFallbackToController("Index", "Fallback");
             });
         }
     }

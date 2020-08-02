@@ -127,20 +127,20 @@ using System;
           [HttpPost("{id}/read")]
          public async Task<IActionResult> MarkMessageAsRead(int userId, int id)
          {
-             if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                 return Unauthorized();  
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();  
 
               var message = await _repo.GetMessage(id);
 
               if (message.RecipientId != userId)
-                 return Unauthorized();
+                return Unauthorized();
 
-              message.IsRead = true;
-             message.DateRead = DateTime.Now;
+            message.IsRead = true;
+            message.DateRead = DateTime.Now;
 
-              await _repo.SaveAll();
+            await _repo.SaveAll();
 
-              return NoContent();
+            return NoContent();
          }
      }
  } 
