@@ -30,7 +30,7 @@ namespace DatingApp.API.Controllers
         public async Task<IActionResult> GetUsers([FromQuery]UserParams userParams)
         {
             var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value); // get id of currently logged user from token 
-            var userFromRepo = await _repo.GetUser(currentUserId);
+            var userFromRepo = await _repo.GetUserWithPhotos(currentUserId);
             userParams.UserId =  currentUserId;
 
             if (string.IsNullOrEmpty(userParams.Gender))
@@ -50,7 +50,7 @@ namespace DatingApp.API.Controllers
         [HttpGet("{id}", Name ="GetUser")]
         public async Task<IActionResult> GetUser(int id)
         {
-            var user = await _repo.GetUser(id);
+            var user = await _repo.GetUserWithPhotos(id);
 
             var userToReturn = _mapper.Map<UserForDetailedDto>(user);
 

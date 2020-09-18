@@ -49,7 +49,7 @@ namespace DatingApp.API.Controllers
         {
             var userFromRepo = await _repo.Login(userForLoginDto.Username.ToLower(), userForLoginDto.Password);
             if (userFromRepo == null)
-                return Unauthorized();
+                return Unauthorized("Wrong password or email.");
 
             //Create Token Authentication
             //Create info that we want to store in our token from our user from database

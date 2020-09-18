@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DatingApp.API.Dtos;
 using DatingApp.API.Helpers;
 using DatingApp.API.Models;
 using Microsoft.EntityFrameworkCore;
@@ -47,9 +48,17 @@ namespace DatingApp.API.Data
             return user;
         }
 
+        public async Task<User> GetUserWithPhotos(int id)
+        {
+            var user = await _context.Users.Include(x => x.Photos).FirstOrDefaultAsync(u => u.Id == id);
+
+            return user;
+        }
+
+
         public async Task<PagedList<User>> GetUsers(UserParams userParams)
         {
-            var users = _context.Users.OrderByDescending(u => u.LastActive).AsQueryable();
+            var users = _context.Users.Include(x => x.Photos).OrderByDescending(u => u.LastActive).AsQueryable();
             users = users.Where(u => u.Id != userParams.UserId);
             // user params gender is set to oposite gender of currently logged in user in userscontroller
             // because we only want to show opposite gender to user
@@ -58,6 +67,7 @@ namespace DatingApp.API.Data
             if(userParams.Likers)
             {
                 var userLikers = await GetUserLikes(userParams.UserId, userParams.Likers);
+
                 users = users.Where(u => userLikers.Contains(u.Id));
             }
 
@@ -98,11 +108,11 @@ namespace DatingApp.API.Data
             if(likers)
             {
                 // select will return collection of integers instead users
-                return user.Likers.Where(u => u.LikeeId == id).Select(i => i.LikerId);
+                return _context.Likes.Where(u => u.LikeeId == id).Select(i => i.LikerId);
             } else 
             {
                 // this return all the liked users that our currently logged in user liked (if 'likers' is false)
-                return user.Likees.Where(u => u.LikerId == id).Select(i => i.LikeeId);
+                return _context.Likes.Where(u => u.LikerId == id).Select(i => i.LikeeId);
             }
         }
 
@@ -114,6 +124,21 @@ namespace DatingApp.API.Data
         public async Task<Message> GetMessage(int id)
         {
             return await _context.Messages.FirstOrDefaultAsync(m => m.Id == id);
+        }
+
+        public async Task<string> GetMainPhotoUrl(int id)
+        {
+            var user = await _context.Users.Include(x => x.Photos).FirstOrDefaultAsync(x => x.Id == id);
+            var mainPhoto = user.Photos.FirstOrDefault(x => x.IsMain);
+
+            return mainPhoto.Url;
+        }
+
+        public async Task<string> GetUserKnownAs(int id)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+            return user.KnownAs;
         }
 
         public async Task<PagedList<Message>> GetMessagesForUser(MessageParams messageParams)

@@ -32,25 +32,6 @@ namespace DatingApp.API
 
         public IConfiguration Configuration { get; }
 
-        public void ConfigureDevelopmentServices(IServiceCollection services)
-        {
-             services.AddDbContext<DataContext>(x => {
-                 x.UseLazyLoadingProxies();
-                 x.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
-             });
-            ConfigureServices(services);
-        }
-
-        public void ConfigureProductionServices(IServiceCollection services)
-        {
-             services.AddDbContext<DataContext>(x => {
-                 x.UseLazyLoadingProxies();
-                 x.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
-             });
-
-            ConfigureServices(services);
-        }
-
         public void ConfigureServices(IServiceCollection services)
         {
            
@@ -58,6 +39,9 @@ namespace DatingApp.API
             {
                 opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
             });
+            
+            services.AddDbContext<DataContext>(options => options.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=DatingApp;Trusted_Connection=True;MultipleActiveResultSets=true;"));
+
             services.AddCors();
             services.AddMvc();
             services.AddScoped<LogUserActivity>();
@@ -77,6 +61,7 @@ namespace DatingApp.API
                         ValidateAudience = false
                     };
                 });
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
