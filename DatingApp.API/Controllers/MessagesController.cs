@@ -79,10 +79,16 @@ namespace DatingApp.API.Controllers
 
             foreach (var item in messageThread)
             {
-                item.RecipientPhotoUrl = await _repo.GetMainPhotoUrl(item.RecipientId);
-                item.SenderPhotoUrl = await _repo.GetMainPhotoUrl(item.SenderId);
-                item.RecipientKnownAs = await _repo.GetUserKnownAs(item.RecipientId);
-                item.SenderKnownAs = await _repo.GetUserKnownAs(item.SenderId);
+                if (item.SenderId > 0)
+                {
+                    item.RecipientPhotoUrl = await _repo.GetMainPhotoUrl(item.RecipientId);
+                    item.RecipientKnownAs = await _repo.GetUserKnownAs(item.RecipientId);
+                }
+                if (item.SenderId > 0)
+                {
+                    item.SenderPhotoUrl = await _repo.GetMainPhotoUrl(item.SenderId);
+                    item.SenderKnownAs = await _repo.GetUserKnownAs(item.SenderId);
+                }
             }
 
             return Ok(messageThread);
@@ -111,11 +117,18 @@ namespace DatingApp.API.Controllers
             {
                 var messageToReturn = _mapper.Map<MessageToReturnDto>(message);
 
-                messageToReturn.RecipientPhotoUrl = await _repo.GetMainPhotoUrl(message.RecipientId);
-                messageToReturn.SenderPhotoUrl = await _repo.GetMainPhotoUrl(message.SenderId);
-                messageToReturn.RecipientKnownAs = await _repo.GetUserKnownAs(message.RecipientId);
-                messageToReturn.SenderKnownAs = await _repo.GetUserKnownAs(message.SenderId);
-                
+                if (message.RecipientId > 0)
+                {
+                    messageToReturn.RecipientPhotoUrl = await _repo.GetMainPhotoUrl(message.RecipientId);
+                    messageToReturn.RecipientKnownAs = await _repo.GetUserKnownAs(message.RecipientId);
+                }
+                if (message.SenderId > 0)
+                {
+                    messageToReturn.SenderPhotoUrl = await _repo.GetMainPhotoUrl(message.SenderId);
+                    messageToReturn.SenderKnownAs = await _repo.GetUserKnownAs(message.SenderId);
+                }
+
+
                 return CreatedAtRoute("GetMessage",
                     new { userId, id = message.Id }, messageToReturn);
             }

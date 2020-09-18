@@ -131,6 +131,8 @@ namespace DatingApp.API.Data
             var user = await _context.Users.Include(x => x.Photos).FirstOrDefaultAsync(x => x.Id == id);
             var mainPhoto = user.Photos.FirstOrDefault(x => x.IsMain);
 
+            if(mainPhoto == null)
+                return "assets/user.png";
             return mainPhoto.Url;
         }
 
